@@ -1,14 +1,83 @@
-#include<stdio.h>
-#include<stdlib.h>
+/*
+ ============================================================================
+ Name        : SaravanjaKonstr2.c
+ Author      : 
+ Version     :
+ Copyright   : Your copyright notice
+ Description : Hello World in C, Ansi-style
+ ============================================================================
+ */
 
-struct Node 
+#include <stdio.h>
+#include <stdlib.h>
+struct Node
 {
 	int data;
 	struct Node* next;
 	struct Node* prev;
 };
 
-struct Node* head; // pointer to head of doubly linked list
+struct Node* head;/* pointer to head of doubly linked list*/
+struct Node* last; /* pointer to tail of doubly linked list*/
+
+void newDoubleLinkedList (int n);
+void printList();
+void insAtHead(int x);
+void DlListDeleteAnyNode(int n);
+
+
+int main()
+{
+    int n, user_function=1;
+
+
+    while(user_function != 0)
+    {
+
+        printf("1. Kreiranje dvostruko povezanog popisa\n");
+        printf("2. Brisanje n-tog Node-a\n");
+        printf("3. Ispis liste \n");
+        printf("4. Dodavanje novog nodea na head \n");
+        printf("0. Izlaz\n");
+        printf("==================================================\n");
+        printf("Odaberite funkciju : ");
+
+        scanf("%d", &user_function);
+
+        if( user_function == 0)
+        {
+         exit(0);
+        }
+        else if(user_function == 1)
+        { printf("Odaberite broj elemenata liste: ");
+        scanf("%d", &n);
+        newDoubleLinkedList(n);
+
+        }
+        else if(user_function == 2)
+        {
+         printf("Odaberite element koji želite obrisati: ");
+         scanf("%d", &n);
+         DlListDeleteAnyNode(n);
+        }
+        else if(user_function == 3)
+        {
+         printList();
+        }
+        else if(user_function == 4)
+        {
+        	printf("Odaberite vrijednost novog heada : ");
+        	         scanf("%d", &n);
+        	         insAtHead(n);
+        }
+
+        printf("\n\n");
+    }
+
+    return 0;
+}
+
+
 
 struct Node* createNewNode(int x)
 {
@@ -17,9 +86,10 @@ struct Node* createNewNode(int x)
 	newNode->prev = NULL;
 	newNode->next = NULL;
 	return newNode;
-} // kreira novi Node i vrati pointer na njega,odma alocira onoliko memorije koliko zauzima Node struktura,pošto je prvi node previous node i next node pointer su null
+} /* kreira novi Node i vrati pointer na njega,odma alocira onoliko memorije koliko zauzima Node struktura,
+pošto je prvi node previous node i next node pointer su null*/
 
-void insAtHead(int x) 
+void insAtHead(int x)
 {
 	struct Node* newNode = createNewNode(x);
 	if (head == NULL)
@@ -30,7 +100,7 @@ void insAtHead(int x)
 	head->prev = newNode;
 	newNode->next = head;
 	head = newNode;
-}// dodaje novi Node na head liste
+}/* dodaje novi Node na head liste*/
 
 void printList() {
 	struct Node* temp = head;
@@ -41,38 +111,105 @@ void printList() {
 	printf("\n");
 }
 
-void deleteNode(struct Node** head_ref, struct Node* del)
+void DlListDeleteAnyNode(int pos)
 {
+    struct Node *curNode;
+    int i;
 
-	if (*head_ref == NULL || del == NULL)
-		return;
+    curNode = head;
+    for(i=1; i<pos && curNode!=NULL; i++)
+    {
+        curNode = curNode->next;
+    }
 
-	//ako je node za brisanje head
-	if (*head_ref == del)
-		*head_ref = del->next;
-	// mjenjanj next samo ako node za brisanje nije zadnji node
-	if (del->next != NULL)
-		del->next->prev = del->prev;
-	// mjenjanj previous samo ako node za brisanje nije prvi node
-	if (del->prev != NULL)
-		del->prev->next = del->next;
-	// free memory koja je zauzeta sa del
-	free(del);
+    if(pos == 1)
+    {
+        DlListDeleteFirstNode();
+    }
+    else if(curNode == last)
+    {
+        DlListDeleteLastNode();
+    }
+    else if(curNode != NULL)
+    {
+        curNode->prev->next = curNode->next;
+        curNode->next->prev = curNode->prev;
+
+        free(curNode); //Delete the n node
+    }
+    else
+    {
+        printf(" Nepostojeca pozicija");
+    }
 }
 
-void deleteNodeAtPosition(struct Node** head_ref, int n)
+void DlListDeleteFirstNode()
 {
-	if (*head_ref == NULL || n <= 0)
-		return;
+    struct Node * NodeToDel;
+    if(head == NULL)
+    {
+        printf(" Brisanje nemoguce, nema podataka u listi\n");
+    }
+    else
+    {
+        NodeToDel = head;
+        head = head->next;
+        head->prev = NULL;
+        free(NodeToDel);
+    }
+}
 
-	struct Node* current = *head_ref;
-	int i;
-	// odlazak na n-tu poziciju od pocetka 
-	for (int i = 1; current != NULL && i < n; i++)
-		current = current->next;
-	// ako je n veci od broja nodova
-	if (current == NULL)
-		return;
-	//brise node koji je current
-	deleteNode(head_ref, current);
+void DlListDeleteLastNode()
+{
+    struct Node * NodeToDel;
+
+    if(head == NULL)
+    {
+        printf(" Nemoguce brisanje,nema podataka\n");
+    }
+    else
+    {
+        NodeToDel = last;
+        last = last->prev;
+        last->next = NULL;
+        free(NodeToDel);
+    }
+}
+
+void newDoubleLinkedList(int n)
+{
+    int i, data;
+    struct Node* newNode;
+
+    if(n >= 1)
+    {
+        head = (struct Node*)malloc(sizeof(struct Node));
+
+        printf("vrijednost prvog node-a : ");
+        scanf("%d", &data);
+
+        head->data = data;
+        head->prev = NULL;
+        head->next = NULL;
+
+        last = head;
+
+
+
+        for(i=2; i<=n; i++)
+        {
+            newNode = (struct Node*)malloc(sizeof(struct Node));
+
+            printf("vrijednost  node-a : ");
+            scanf("%d", &data);
+
+            newNode->data = data;
+            newNode->prev = last;
+            newNode->next = NULL;
+
+            last->next = newNode;
+            last = newNode;
+        }
+
+    }
 }
